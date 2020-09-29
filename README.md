@@ -1,6 +1,6 @@
 # mycodes
 
-Hello , I'm Mikan.
+Hello , I'm Saw.
 
 This is for study.
 This project is going to be written as much as possible every day to get me out of the beginners to code.
