@@ -1,0 +1,61 @@
+---
+version: '3.7'
+services:
+  gitlab1:
+    image: gitlab/gitlab-ce:11.11.8-ce.0
+    container_name: GitLab-1
+    restart: always
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://192.168.202.20:30443'
+        gitlab_rails['time_zone'] = 'Asia/Tokyo'
+        gitlab_rails['gitlab_email_from'] = 'gitlab-no-reply@example.com'
+        gitlab_rails['gitlab_email_display_name'] = 'GitLab Administrator'
+        gitlab_rails['gitlab_email_reply_to'] = 'admin@hexample.com'
+        gitlab_rails['backup_keep_time'] = 14515200
+        gitlab_rails['smtp_enable'] = false
+        ＃gitlab_rails['gitlab_ssh_host'] = '192.168.202.20:30022'
+        unicorn['worker_timeout'] = 60
+        unicorn['worker_processes'] = 3
+        logging['logrotate_frequency'] = "weekly"
+        logging['logrotate_rotate'] = 52
+        logging['logrotate_compress'] = "compress"
+        logging['logrotate_method'] = "copytruncate"
+        logging['logrotate_delaycompress'] = "delaycompress"
+        nginx['listen_port'] = 443
+        nginx['redirect_http_to_https'] = true
+        nginx['ssl_certificate'] = "/etc/ssl/certs/gitlab/server-cert1.pem"
+        nginx['ssl_certificate_key'] = "/etc/ssl/certs/gitlab/server-key1.pem"
+        nginx['ssl_protocols'] = "TLSv1.1 TLSv1.2"
+        nginx['logrotate_frequency'] = "weekly"
+        nginx['logrotate_rotate'] = 52
+        nginx['logrotate_compress'] = "compress"
+        nginx['logrotate_method'] = "copytruncate"
+        nginx['logrotate_delaycompress'] = "delaycompress"
+        registry_external_url 'https://192.168.202.20:35022'
+        registry_nginx['ssl_certificate'] = "/etc/ssl/certs/gitlab/localhost.crt"
+        registry_nginx['ssl_certificate_key'] = "/etc/ssl/certs/gitlab/localhost.pem"
+
+        # Add any other gitlab.rb configuration options if desired
+    ports:
+      - '30443:443'
+      - '30022:22'
+      - '30080:80'
+      - '35022:35022'
+    volumes:
+      - ./volume_data/conf:/etc/gitlab
+      - ./volume_data/ssl:/etc/ssl/certs/gitlab
+      - ./volume_data/logs:/var/log/gitlab
+      - ./volume_data/main:/var/opt/gitlab
+    networks:
+      dev-net:
+        ipv4_address: 192.168.202.20
+
+networks:
+  dev-net:
+    name: gitlab_d
+    driver: bridge
+    ipam:
+        driver: default
+        config:
+            - subnet: 192.168.202.0/24
